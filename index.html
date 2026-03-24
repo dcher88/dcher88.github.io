@@ -9,7 +9,7 @@
 <body>
   <header>
     <div class="logo">
-      <img src="book-open-cover.png" alt="UustBook logo">
+      <img src="images/book-open-cover.png" alt="UustBook logo">
       <h1>UustBook</h1>
     </div>
     <nav>
@@ -17,10 +17,14 @@
       <a href="groups.html">Сообщества</a>
       <a href="library.html">Библиотека</a>
     </nav>
-    <div class="auth">
-    <a href="login.html">Войти</a> | 
-    <a href="register.html">Регистрация</a>
-</div>
+    <div class="auth" id="authLinks">
+      <a href="login.html">Войти</a> | 
+      <a href="register.html">Регистрация</a>
+    </div>
+    <div class="user-info" id="userInfo" style="display: none;">
+      <span id="userName"></span>
+      <button onclick="logout()" class="logout-btn">Выйти</button>
+    </div>
   </header>
 
   <main class="hero">
@@ -38,5 +42,30 @@
   <footer>
     <p>© 2026 UustBook | Форум для обмена и обсуждения учебных вопросов.</p>
   </footer>
+
+  <script src="database.js"></script>
+  <script>
+    // Проверяем авторизацию при загрузке
+    window.onload = async function() {
+      const currentUser = db.getCurrentUser();
+      const authLinks = document.getElementById('authLinks');
+      const userInfo = document.getElementById('userInfo');
+      const userName = document.getElementById('userName');
+
+      if (currentUser) {
+        authLinks.style.display = 'none';
+        userInfo.style.display = 'block';
+        userName.textContent = currentUser.fullname;
+      } else {
+        authLinks.style.display = 'block';
+        userInfo.style.display = 'none';
+      }
+    };
+
+    async function logout() {
+      db.logout();
+      window.location.reload();
+    }
+  </script>
 </body>
 </html>
