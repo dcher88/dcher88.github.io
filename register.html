@@ -9,7 +9,7 @@
 <body>
   <header>
     <div class="logo">
-      <img src="book-open-cover.png" alt="UustBook logo">
+      <img src="images/book-open-cover.png" alt="UustBook logo">
       <h1>UustBook</h1>
     </div>
     <nav>
@@ -22,7 +22,9 @@
   <main class="content">
     <div class="auth-form">
       <h2>Регистрация</h2>
-      <form>
+      <div id="errorMessage" class="error-message" style="display: none;"></div>
+      <div id="successMessage" class="success-message" style="display: none;"></div>
+      <form id="registerForm">
         <div class="form-group">
           <label for="fullname">ФИО:</label>
           <input type="text" id="fullname" name="fullname" required>
@@ -48,5 +50,44 @@
   <footer>
     <p>© 2026 UustBook</p>
   </footer>
+
+  <script src="database.js"></script>
+  <script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const fullname = document.getElementById('fullname').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      const errorDiv = document.getElementById('errorMessage');
+      const successDiv = document.getElementById('successMessage');
+
+      if (password !== confirmPassword) {
+        errorDiv.textContent = 'Пароли не совпадают';
+        errorDiv.style.display = 'block';
+        setTimeout(() => {
+          errorDiv.style.display = 'none';
+        }, 3000);
+        return;
+      }
+
+      try {
+        await db.registerUser({ fullname, email, password });
+        successDiv.textContent = 'Регистрация успешна! Перенаправляем на страницу входа...';
+        successDiv.style.display = 'block';
+        
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 2000);
+      } catch (error) {
+        errorDiv.textContent = error.message;
+        errorDiv.style.display = 'block';
+        setTimeout(() => {
+          errorDiv.style.display = 'none';
+        }, 3000);
+      }
+    });
+  </script>
 </body>
 </html>
