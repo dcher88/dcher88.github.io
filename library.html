@@ -17,23 +17,27 @@
       <a href="groups.html">Сообщества</a>
       <a href="library.html" class="active">Библиотека</a>
     </nav>
+    <div class="auth" id="authLinks">
+      <a href="login.html">Войти</a> | 
+      <a href="register.html">Регистрация</a>
+    </div>
+    <div class="user-info" id="userInfo" style="display: none;">
+      <span id="userName"></span>
+      <button onclick="logout()" class="logout-btn">Выйти</button>
+    </div>
   </header>
 
   <main class="content">
     <h2 style="color: white;">Библиотека</h2>
-    <input type="text" placeholder="Поиск..." class="search-input">
+    <input type="text" placeholder="Поиск..." class="search-input" id="searchInput">
+    <button onclick="addMaterial()" style="margin-top: 10px; margin-bottom: 10px;">+ Добавить материал</button>
 
     <table class="library-table">
       <thead>
-        <tr><th>Название</th><th>Размер</th><th></th></tr>
+        <tr><th>Название</th><th>Размер</th><th>Скачиваний</th><th></th></tr>
       </thead>
-      <tbody>
-        <tr><td>Политология. Учебник для студентов вузов (2013)</td><td>1605 кб</td><td><button>Скачать</button></td></tr>
-        <tr><td>Матяш, Жаров, Несмеянов. Философия. Учебник</td><td>8705 кб</td><td><button>Скачать</button></td></tr>
-        <tr><td>История России (2-е издание)</td><td>2195 кб</td><td><button>Скачать</button></td></tr>
-        <tr><td>Курс высшей математики (1991)</td><td>641 кб</td><td><button>Скачать</button></td></tr>
-        <tr><td>Логика. Учебник для юридических вузов (2001)</td><td>755 кб</td><td><button>Скачать</button></td></tr>
-        <tr><td>Психология. Учебник для педагогических направлений</td><td>966 кб</td><td><button>Скачать</button></td></tr>
+      <tbody id="materialsList">
+        <!-- Материалы будут загружены динамически -->
       </tbody>
     </table>
   </main>
@@ -41,5 +45,95 @@
   <footer>
     <p>© 2026 UustBook</p>
   </footer>
+
+  <script src="database.js"></script>
+  <script>
+    let currentUser = null;
+
+    window.onload = async function() {
+      currentUser = db.getCurrentUser();
+      
+      const authLinks = document.getElementById('authLinks');
+      const userInfo = document.getElementById('userInfo');
+      const userName = document.getElementById('userName');
+
+      if (currentUser) {
+        authLinks.style.display = 'none';
+        userInfo.style.display = 'block';
+        userName.textContent = currentUser.fullname;
+      } else {
+        authLinks.style.display = 'block';
+        userInfo.style.display = 'none';
+      }
+
+      await loadMaterials();
+      
+      // Поиск в реальном времени
+      document.getElementById('searchInput').addEventListener('input', async (e) => {
+        await loadMaterials(e.target.value);
+      });
+    };
+
+    async function loadMaterials(searchQuery = '') {
+      const materials = await db.searchMaterials(searchQuery);
+      const tbody = document.getElementById('materialsList');
+      tbody.innerHTML = '';
+
+      for (const material of materials) {
+        const row = tbody.insertRow();
+        row.insertCell(0).textContent = material.title;
+        row.insertCell(1).textContent = material.size;
+        row.insertCell(2).textContent = material.downloads || 0;
+        
+        const actionCell = row.insertCell(3);
+        const downloadBtn = document.createElement('button');
+        downloadBtn.textContent = 'Скачать';
+        downloadBtn.onclick = () => downloadMaterial(material.id);
+        actionCell.appendChild(downloadBtn);
+      }
+    }
+
+    async function downloadMaterial(materialId) {
+      if (!currentUser) {
+        alert('Войдите, чтобы скачивать материалы');
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      try {
+        const material = await db.downloadMaterial(materialId);
+        alert(`Начинается скачивание: ${material.title}`);
+        await loadMaterials(document.getElementById('searchInput').value);
+      } catch (error) {
+        alert('Ошибка при скачивании');
+      }
+    }
+
+    function addMaterial() {
+      if (!currentUser) {
+        alert('Войдите, чтобы добавлять материалы');
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      const title = prompt('Введите название материала:');
+      if (!title) return;
+      
+      const size = prompt('Введите размер (например, 1024 кб):');
+      if (!size) return;
+      
+      db.addMaterial({ title, size }).then(() => {
+        alert('Материал добавлен!');
+        loadMaterials(document.getElementById('searchInput').value);
+      }).catch(error => {
+        alert('Ошибка при добавлении');
+      });
+    }
+
+    async function logout() {
+      db.logout();
+      window.location.reload();
+    }
+  </script>
 </body>
 </html>
