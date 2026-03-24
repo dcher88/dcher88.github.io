@@ -2,7 +2,7 @@
 class UustBookDB {
   constructor() {
     this.dbName = 'UustBookDB';
-    this.dbVersion = 1;
+    this.dbVersion = 2;
     this.db = null;
     this.init();
   }
