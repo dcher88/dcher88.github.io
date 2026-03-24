@@ -22,7 +22,8 @@
   <main class="content">
     <div class="auth-form">
       <h2>Вход в аккаунт</h2>
-      <form>
+      <div id="errorMessage" class="error-message" style="display: none;"></div>
+      <form id="loginForm">
         <div class="form-group">
           <label for="email">Email:</label>
           <input type="email" id="email" name="email" required>
@@ -40,5 +41,29 @@
   <footer>
     <p>© 2026 UustBook</p>
   </footer>
+
+  <script src="database.js"></script>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const errorDiv = document.getElementById('errorMessage');
+
+      try {
+        const user = await db.loginUser(email, password);
+        if (user) {
+          window.location.href = 'index.html';
+        }
+      } catch (error) {
+        errorDiv.textContent = error.message;
+        errorDiv.style.display = 'block';
+        setTimeout(() => {
+          errorDiv.style.display = 'none';
+        }, 3000);
+      }
+    });
+  </script>
 </body>
 </html>
