@@ -22,8 +22,6 @@
   <main class="content">
     <div class="auth-form">
       <h2>Регистрация</h2>
-      <div id="errorMessage" class="error-message" style="display: none;"></div>
-      <div id="successMessage" class="success-message" style="display: none;"></div>
       <form id="registerForm">
         <div class="form-group">
           <label for="fullname">ФИО:</label>
@@ -44,6 +42,7 @@
         <button type="submit" class="btn">Зарегистрироваться</button>
       </form>
       <p>Уже есть аккаунт? <a href="login.html">Войти</a></p>
+      <div id="debugInfo" style="margin-top: 10px; font-size: 12px; color: #999;"></div>
     </div>
   </main>
 
@@ -53,39 +52,43 @@
 
   <script src="database.js"></script>
   <script>
-    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    document.getElementById('registerForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       
       const fullname = document.getElementById('fullname').value;
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
       const confirmPassword = document.getElementById('confirm-password').value;
-      const errorDiv = document.getElementById('errorMessage');
-      const successDiv = document.getElementById('successMessage');
-
+      const debugDiv = document.getElementById('debugInfo');
+      
       if (password !== confirmPassword) {
-        errorDiv.textContent = 'Пароли не совпадают';
-        errorDiv.style.display = 'block';
-        setTimeout(() => {
-          errorDiv.style.display = 'none';
-        }, 3000);
+        debugDiv.textContent = 'Пароли не совпадают';
+        alert('Пароли не совпадают');
         return;
       }
-
+      
+      if (password.length < 4) {
+        debugDiv.textContent = 'Пароль должен быть не менее 4 символов';
+        alert('Пароль должен быть не менее 4 символов');
+        return;
+      }
+      
+      debugDiv.textContent = 'Проверка...';
+      
       try {
-        await db.registerUser({ fullname, email, password });
-        successDiv.textContent = 'Регистрация успешна! Перенаправляем на страницу входа...';
-        successDiv.style.display = 'block';
+        // Ждем готовности базы данных
+        await db.waitForReady();
         
-        setTimeout(() => {
-          window.location.href = 'login.html';
-        }, 2000);
+        debugDiv.textContent = 'База данных готова, регистрируем...';
+        
+        await db.registerUser({ fullname, email, password });
+        debugDiv.textContent = 'Регистрация успешна!';
+        
+        alert('Регистрация успешна! Теперь войдите в аккаунт.');
+        window.location.href = 'login.html';
       } catch (error) {
-        errorDiv.textContent = error.message;
-        errorDiv.style.display = 'block';
-        setTimeout(() => {
-          errorDiv.style.display = 'none';
-        }, 3000);
+        debugDiv.textContent = 'Ошибка: ' + error.message;
+        alert('Ошибка: ' + error.message);
       }
     });
   </script>

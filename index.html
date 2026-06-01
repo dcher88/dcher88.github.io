@@ -5,6 +5,157 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UustBook — Главная</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .hero {
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 20px;
+    }
+    
+    .hero-text {
+      max-width: 800px;
+      margin: 0 auto;
+      background: rgba(0, 0, 0, 0.55);
+      padding: 50px 60px;
+      border-radius: 20px;
+      backdrop-filter: blur(5px);
+    }
+    
+    .hero-text h2 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    
+    .hero-text p {
+      font-size: 1.2rem;
+      line-height: 1.6;
+      margin-bottom: 40px;
+      color: #f0f0f0;
+    }
+    
+    .hero-buttons {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .button-row {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      flex-wrap: wrap;
+    }
+    
+    .hero-buttons .btn {
+      background: linear-gradient(135deg, #2a63ff 0%, #1a4fcc 100%);
+      color: white;
+      padding: 14px 20px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      min-width: 220px;
+      width: 220px;
+    }
+    
+    .hero-buttons .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(135deg, #3a73ff 0%, #2a5fdc 100%);
+    }
+    
+    @media (max-width: 600px) {
+      .hero-text {
+        padding: 30px 25px;
+      }
+      
+      .hero-text h2 {
+        font-size: 1.8rem;
+      }
+      
+      .hero-text p {
+        font-size: 1rem;
+      }
+      
+      .button-row {
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      .hero-buttons .btn {
+        min-width: 200px;
+        width: 200px;
+        padding: 12px 16px;
+        font-size: 1rem;
+      }
+    }
+    
+    header {
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .logo h1 {
+      color: #2a63ff;
+    }
+    
+    nav a {
+      color: #333;
+      transition: color 0.3s;
+    }
+    
+    nav a:hover, nav a.active {
+      color: #2a63ff;
+    }
+    
+    .auth a {
+      color: #2a63ff;
+      text-decoration: none;
+    }
+    
+    /* Стили для блока пользователя */
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    #userName {
+      color: #2a63ff;
+      font-weight: 500;
+    }
+    
+    .logout-btn {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    .logout-btn:hover {
+      background: #c82333;
+    }
+    
+    footer {
+      background: #1a1a2e;
+      color: #aaa;
+      text-align: center;
+      padding: 25px;
+      margin-top: 0;
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -13,14 +164,16 @@
       <h1>UustBook</h1>
     </div>
     <nav>
-      <a href="index.html">Главная</a>
+      <a href="index.html" class="active">Главная</a>
       <a href="groups.html">Сообщества</a>
       <a href="library.html">Библиотека</a>
     </nav>
-    <div class="auth" id="authLinks">
+    <!-- Блок для неавторизованных пользователей -->
+    <div class="auth" id="authBlock">
       <a href="login.html">Войти</a> | 
       <a href="register.html">Регистрация</a>
     </div>
+    <!-- Блок для авторизованных пользователей -->
     <div class="user-info" id="userInfo" style="display: none;">
       <span id="userName"></span>
       <button onclick="logout()" class="logout-btn">Выйти</button>
@@ -32,9 +185,14 @@
       <h2>Лучший студенческий цифровой штаб</h2>
       <p>Сервис, где можно легко найти всё необходимое, задать вопрос старшекурснику или загрузить свои собственные материалы.</p>
       <div class="hero-buttons">
-        <a href="library.html" class="btn">Учебные материалы</a>
-        <a href="groups.html" class="btn">Сообщество</a>
-        <a href="guide.html" class="btn">Руководство</a>
+        <div class="button-row">
+          <a href="educational-materials.html" class="btn">Учебные материалы</a>
+          <a href="groups.html" class="btn">Сообщество</a>
+        </div>
+        <div class="button-row">
+          <a href="guide.html" class="btn">Руководство</a>
+          <a href="library.html" class="btn">Библиотека</a>
+        </div>
       </div>
     </section>
   </main>
@@ -45,27 +203,69 @@
 
   <script src="database.js"></script>
   <script>
-    // Проверяем авторизацию при загрузке
-    window.onload = async function() {
-      const currentUser = db.getCurrentUser();
-      const authLinks = document.getElementById('authLinks');
-      const userInfo = document.getElementById('userInfo');
-      const userName = document.getElementById('userName');
+    // Глобальная переменная для текущего пользователя
+    let currentUser = null;
 
+    // Функция обновления интерфейса в зависимости от авторизации
+    function updateUI() {
+      const authBlock = document.getElementById('authBlock');
+      const userInfo = document.getElementById('userInfo');
+      const userNameSpan = document.getElementById('userName');
+      
       if (currentUser) {
-        authLinks.style.display = 'none';
-        userInfo.style.display = 'block';
-        userName.textContent = currentUser.fullname;
+        // Пользователь авторизован
+        authBlock.style.display = 'none';
+        userInfo.style.display = 'flex';
+        userNameSpan.textContent = currentUser.fullname;
       } else {
-        authLinks.style.display = 'block';
+        // Пользователь не авторизован
+        authBlock.style.display = 'flex';
         userInfo.style.display = 'none';
       }
-    };
-
-    async function logout() {
-      db.logout();
-      window.location.reload();
     }
+
+    // Функция выхода
+    async function logout() {
+      if (db && typeof db.logout === 'function') {
+        db.logout();
+      }
+      currentUser = null;
+      updateUI();
+      window.location.href = 'index.html';
+    }
+
+    // Основная функция инициализации
+    async function initPage() {
+      try {
+        // Проверяем, что db существует и ждем его готовности
+        if (!db) {
+          console.error('База данных не найдена');
+          return;
+        }
+        
+        // Ждем готовности базы данных
+        if (typeof db.waitForReady === 'function') {
+          await db.waitForReady();
+        }
+        
+        console.log('База данных готова');
+        
+        // Получаем текущего пользователя
+        if (typeof db.getCurrentUser === 'function') {
+          currentUser = db.getCurrentUser();
+        }
+        
+        // Обновляем интерфейс
+        updateUI();
+        
+        console.log('Текущий пользователь:', currentUser);
+      } catch (error) {
+        console.error('Ошибка инициализации:', error);
+      }
+    }
+
+    // Запускаем инициализацию после загрузки страницы
+    window.addEventListener('DOMContentLoaded', initPage);
   </script>
 </body>
 </html>
